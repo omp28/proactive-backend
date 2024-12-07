@@ -2,21 +2,8 @@ const { DataTypes } = require("sequelize");
 const sequelize = require("../config/db");
 
 const Speaker = sequelize.define("Speaker", {
-  id: {
+  userId: {
     type: DataTypes.INTEGER,
-    primaryKey: true,
-    autoIncrement: true,
-  },
-  firstName: {
-    type: DataTypes.STRING,
-    allowNull: false,
-  },
-  lastName: {
-    type: DataTypes.STRING,
-    allowNull: false,
-  },
-  email: {
-    type: DataTypes.STRING,
     allowNull: false,
     unique: true,
   },
@@ -27,13 +14,6 @@ const Speaker = sequelize.define("Speaker", {
   pricePerSession: {
     type: DataTypes.FLOAT,
     allowNull: false,
-  },
-  userId: {
-    type: DataTypes.INTEGER,
-    references: {
-      model: "Users",
-      key: "id",
-    },
   },
 });
 

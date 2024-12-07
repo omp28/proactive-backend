@@ -2,9 +2,11 @@ const express = require("express");
 const app = express();
 const sequelize = require("./config/db");
 const authRoutes = require("./routes/authRoutes");
+const speakerRoutes = require("./routes/speakerRoutes");
 
 app.use(express.json());
-app.use("/api", authRoutes);
+app.use("/api/auth", authRoutes);
+app.use("/api/speakers", speakerRoutes);
 
 const PORT = process.env.PORT || 3000;
 
