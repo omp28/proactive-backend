@@ -54,3 +54,60 @@ exports.signup = async (req, res) => {
     res.status(500).json({ message: "Server error", error: err.message });
   }
 };
+
+exports.verifyOtp = async (req, res) => {
+  const { email, otp } = req.body;
+
+  try {
+    const user = await User.findOne({ where: { email } });
+    if (!user) {
+      return res.status(404).json({ message: "User not found." });
+    }
+
+    console.log("Stored OTP:", user.otp);
+    console.log("Provided OTP:", otp);
+
+    if (Number(user.otp) !== Number(otp)) {
+      return res.status(400).json({ message: "Invalid OTP." });
+    }
+
+    user.otpVerified = true;
+    await user.save();
+
+    res.status(200).json({ message: "OTP verified successfully." });
+  } catch (err) {
+    res.status(500).json({ message: "Server error", error: err.message });
+  }
+};
+
+exports.login = async (req, res) => {
+  const { email, password } = req.body;
+
+  try {
+    const user = await User.findOne({ where: { email } });
+    if (!user) {
+      return res.status(404).json({ message: "User not found." });
+    }
+
+    if (!user.otpVerified) {
+      return res
+        .status(400)
+        .json({ message: "OTP not verified. Please verify your OTP first." });
+    }
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(401).json({ message: "Invalid credentials." });
+    }
+
+    const token = jwt.sign(
+      { id: user.id, email: user.email, userType: user.userType },
+      process.env.JWT_SECRET,
+      { expiresIn: "1h" }
+    );
+
+    res.status(200).json({ message: "Login successful", token });
+  } catch (err) {
+    res.status(500).json({ message: "Server error", error: err.message });
+  }
+};
