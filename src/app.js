@@ -1,8 +1,13 @@
 const express = require("express");
-const router = express.Router();
-const { setupProfile } = require("../controllers/speakerController");
-const { authenticate } = require("../middleware/authMiddleware");
+const app = express();
+const sequelize = require("./config/db");
+const authRoutes = require("./routes/authRoutes");
+const speakerRoutes = require("./routes/speakerRoutes");
+const bookingRoutes = require("./routes/bookingRoutes");
 
-router.post("/setup-profile", authenticate, setupProfile);
+app.use(express.json());
+app.use("/api/auth", authRoutes);
+app.use("/api/speakers", speakerRoutes);
+app.use("/api/bookings", bookingRoutes);
 
-module.exports = router;
+module.exports = app;

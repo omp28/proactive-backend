@@ -35,3 +35,15 @@ exports.setupProfile = async (req, res) => {
     res.status(500).json({ message: "Server error.", error: error.message });
   }
 };
+
+exports.getSpeakers = async (req, res) => {
+  try {
+    const speakers = await Speaker.findAll({
+      attributes: ["id", "expertise", "pricePerSession"],
+    });
+
+    res.status(200).json({ speakers });
+  } catch (err) {
+    res.status(500).json({ message: "Server error", error: err.message });
+  }
+};
