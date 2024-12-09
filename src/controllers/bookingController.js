@@ -1,5 +1,7 @@
 const Booking = require("../models/Booking");
 const Speaker = require("../models/Speaker");
+const { sendEmailNotification } = require("../utils/emailSender");
+const { createGoogleCalendarEvent } = require("../utils/googleCalendar");
 
 exports.bookSession = async (req, res) => {
   const { speakerId, date, timeSlot } = req.body;
@@ -11,11 +13,23 @@ exports.bookSession = async (req, res) => {
     });
 
     if (existingBooking) {
-      return res.status(400).json({ message: "Time slot already booked." });
+      return res.status(400).json({ message: "Time slot is already booked." });
     }
 
-    const booking = await Booking.create({ userId, speakerId, date, timeSlot });
-    res.status(201).json({ message: "Booking successful.", booking });
+    const newBooking = await Booking.create({
+      userId,
+      speakerId,
+      date,
+      timeSlot,
+    });
+
+    await sendEmailNotification(newBooking);
+
+    await createGoogleCalendarEvent(newBooking);
+
+    res
+      .status(201)
+      .json({ message: "Session booked successfully.", booking: newBooking });
   } catch (err) {
     res.status(500).json({ message: "Server error", error: err.message });
   }
