@@ -1,15 +1,13 @@
-const express = require("express");
-const app = express();
+const app = require("./app");
 const sequelize = require("./config/db");
-const authRoutes = require("./routes/authRoutes");
-
-app.use(express.json());
-app.use("/api", authRoutes);
 
 const PORT = process.env.PORT || 3000;
 
-sequelize.sync({ alter: true }).then(() => {
+sequelize.sync({ force: false }).then(() => {
   app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
+    console.log(
+      `API Documentation available at http://localhost:${PORT}/api-docs`
+    );
   });
 });
