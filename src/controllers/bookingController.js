@@ -3,9 +3,31 @@ const Speaker = require("../models/Speaker");
 const { sendEmailNotification } = require("../utils/emailSender");
 const { createGoogleCalendarEvent } = require("../utils/googleCalendar");
 
+const validateTimeSlot = (timeSlot) => {
+  const hour = parseInt(timeSlot);
+
+  if (!Number.isInteger(hour) || hour < 9 || hour > 16) {
+    return {
+      isValid: false,
+      message:
+        "Bookings only allowed between 9 AM and 4 PM in 1-hour intervals",
+    };
+  }
+
+  return {
+    isValid: true,
+    message: "Valid time slot",
+  };
+};
+
 exports.bookSession = async (req, res) => {
   const { speakerId, date, timeSlot } = req.body;
   const userId = req.user.id;
+
+  const timeValidation = validateTimeSlot(timeSlot);
+  if (!timeValidation.isValid) {
+    return res.status(400).json({ message: timeValidation.message });
+  }
 
   try {
     const existingBooking = await Booking.findOne({
